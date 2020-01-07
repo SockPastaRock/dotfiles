@@ -1,0 +1,84 @@
+
+# Skeleton
+snippet skel
+	#!/usr/bin/python3
+
+	# {{{ Imports
+
+
+	# }}}
+	# {{{ Constants
+
+
+	# }}}
+	# {{{ Classes
+
+
+	# }}}
+	# {{{ Functions
+
+	# {{{ main
+
+
+	def main():
+
+	    raise NotImplementedError
+		$0
+
+	# }}}
+
+	# }}}
+
+
+	if __name__=="__main__":
+		main()
+endsnippet
+
+# New Function
+snippet fn
+	# {{{ $1
+
+
+	def ${1:FunctionName}(${2:*args, **kwargs}):
+	    """${3:Docstring for $1}"""
+
+	    ${0:raise NotImplementedError}
+
+	# }}}
+endsnippet
+
+# New Class
+snippet cl
+	# {{{ $1
+
+
+	class ${1:ClassName}(${2:*args, **kwargs}):
+		"""${3:docstring for $1}"""
+
+	# {{{ Constructor
+
+
+		def __init__(self, ${4:*args, **kwargs}):
+			${0}
+
+	# }}}
+	# {{{ Methods
+
+
+	# }}}
+
+	# }}}
+endsnippet
+
+# New Method
+snippet mth
+	# {{{ $1
+
+
+	    def ${1:MethodName}(${2:*args, **kwargs}):
+		    """${3:docstring for $1}"""
+
+	        ${0:raise NotImplementedError}
+
+	# }}}
+endsnippet
