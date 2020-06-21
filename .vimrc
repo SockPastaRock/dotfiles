@@ -20,11 +20,15 @@ endif
 
 function! RunProj()
 	write
+	echo &ft
 	if (&ft=='dart')
 		:call RunDart()
 	elseif (&ft=='python')
 	    :call CloseTerm()
 		:call RunPython()
+	elseif (&ft=='asm')
+	    :call CloseTerm()
+		:call RunAssembly()
 	endif
 endfunction
 
@@ -33,6 +37,7 @@ endfunction
 
 
 function! RunPython()
+	write
     :terminal bash -c "cd %:h && python %:t"
 	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>w")
 endfunction
@@ -48,6 +53,16 @@ function! RunDart()
 		:FlutterRun
 	    :call feedkeys("\<C-\>\<C-n>10\<C-w>_\<C-w>w")
 	endif
+endfunction
+
+"}}}
+"{{{ RunAssembly
+
+
+function! RunAssembly()
+	write
+	:terminal bash -c "nasm -f elf %:p -o %:r.o && ld -m elf_i386 -s -o %:r %:r.o && ./%:r"
+	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>w")
 endfunction
 
 "}}}
@@ -104,6 +119,10 @@ vnoremap <leader>yr :<backspace><backspace><backspace><backspace><backspace>%s/\
 
 "}}}
 "{{{ misc
+
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
 
 autocmd BufWritePre * %s/\s\+$//e  "Remove trailing whitespace on save
 set tabstop=4
