@@ -22,8 +22,8 @@ snippet skel
 
 def main():
 
-    raise NotImplementedError
-	$0
+	raise NotImplementedError
+$0
 
 # }}}
 
@@ -40,9 +40,9 @@ snippet fn
 
 
 def ${1:FunctionName}(${2:*args, **kwargs}):
-    """${3:Docstring for $1}"""
+	"""${3:Docstring for $1}"""
 
-    ${0:raise NotImplementedError}
+	${0:raise NotImplementedError}
 
 # }}}
 endsnippet
@@ -75,10 +75,10 @@ snippet mth
 # {{{ $1
 
 
-	    def ${1:MethodName}(${2:*args, **kwargs}):
-		    """${3:docstring for $1}"""
+	def ${1:MethodName}(${2:*args, **kwargs}):
+		"""${3:docstring for $1}"""
 
-	        ${0:raise NotImplementedError}
+		${0:raise NotImplementedError}
 
 # }}}
 endsnippet

@@ -15,12 +15,25 @@ endif
 "}}}
 "{{{ functions
 
+"{{{ DbgProj
+
+
+function! DbgProj()
+	if (&ft=='python')
+		:execute "normal! /if __name__\<cr>j0wiimport pdb\<cr>pdb.set_trace()\<cr>\<esc>"
+		write
+		:execute "normal! /if __name__\<cr>jdddd"
+	    :call CloseTerm()
+		:call RunPython()
+	endif
+endfunction
+
+"}}}
 "{{{ RunProj
 
 
 function! RunProj()
 	write
-	echo &ft
 	if (&ft=='dart')
 		:call RunDart()
 	elseif (&ft=='python')
@@ -29,6 +42,9 @@ function! RunProj()
 	elseif (&ft=='asm')
 	    :call CloseTerm()
 		:call RunAssembly()
+	elseif (&ft=='tex')
+	    :call CloseTerm()
+		:call RunLatex()
 	endif
 endfunction
 
@@ -37,9 +53,18 @@ endfunction
 
 
 function! RunPython()
-	write
     :terminal bash -c "cd %:h && python %:t"
-	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>w")
+	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+"{{{ RunLatex
+
+
+function! RunLatex()
+	write
+    :terminal bash -c "cd %:h && pdflatex %:t && pdflatex %:t && zathura %:r.pdf"
+	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
 endfunction
 
 "}}}
@@ -51,7 +76,7 @@ function! RunDart()
 		:FlutterHotReload
 	else
 		:FlutterRun
-	    :call feedkeys("\<C-\>\<C-n>10\<C-w>_\<C-w>w")
+	    :call feedkeys("\<C-\>\<C-n>10\<C-w>_\<C-w>p")
 	endif
 endfunction
 
@@ -62,7 +87,7 @@ endfunction
 function! RunAssembly()
 	write
 	:terminal bash -c "nasm -f elf %:p -o %:r.o && ld -m elf_i386 -s -o %:r %:r.o && ./%:r"
-	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>w")
+	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
 endfunction
 
 "}}}
@@ -97,6 +122,7 @@ nnoremap <leader><leader> :CtrlP<CR>
 nnoremap <leader>sr :%s//g<Left><left>
 
 nnoremap <leader>r :call RunProj()<CR>
+nnoremap <leader>d :call DbgProj()<CR>
 nnoremap <leader>e :call RunProj()<CR>
 nnoremap <leader>q :call CloseTerm()<CR>
 
@@ -154,7 +180,7 @@ let g:UltiSnipsSnippetsDir = "~/.vim/UltiSnips"
 " ctags
 set tags=tags
 
-set termguicolors
+" set termguicolors
 
 "}}}
 "{{{ plugins
@@ -168,14 +194,14 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'prettier/vim-prettier'
-Plug 'dart-lang/dart-vim-plugin'
-Plug 'thosakwe/vim-flutter'
-Plug 'kien/ctrlp.vim'
-Plug 'valloric/youcompleteme'
-Plug 'sirver/ultisnips'
-Plug 'ervandew/supertab'
-Plug 'bronson/vim-trailing-whitespace'
+Plug 'prettier/vim-prettier' 				" .
+Plug 'dart-lang/dart-vim-plugin' 			" .
+Plug 'thosakwe/vim-flutter' 				" .
+Plug 'kien/ctrlp.vim' 						" Fuzzyfinder
+Plug 'valloric/youcompleteme' 				" Autocomplete
+Plug 'sirver/ultisnips' 					" Snippets
+Plug 'ervandew/supertab' 					" Autocomplete and Snippets play nice together
+Plug 'bronson/vim-trailing-whitespace' 		" Trim whitespace on save
 
 call plug#end()
 
