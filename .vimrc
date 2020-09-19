@@ -15,20 +15,33 @@ endif
 "}}}
 "{{{ functions
 
+"{{{ Debug
+
 "{{{ DbgProj
 
 
 function! DbgProj()
+	write
 	if (&ft=='python')
-		:execute "normal! /if __name__\<cr>j0wiimport pdb\<cr>pdb.set_trace()\<cr>\<esc>"
-		write
-		:execute "normal! /if __name__\<cr>jdddd"
 	    :call CloseTerm()
-		:call RunPython()
+		:call DbgPython()
 	endif
 endfunction
 
 "}}}
+"{{{ DbgPython
+
+
+function! DbgPython()
+    :terminal bash -c "cd %:h && python -m pdb %:t"
+	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+
+"}}}
+"{{{ Run
+
 "{{{ RunProj
 
 
@@ -89,6 +102,8 @@ function! RunAssembly()
 	:terminal bash -c "nasm -f elf %:p -o %:r.o && ld -m elf_i386 -s -o %:r %:r.o && ./%:r"
 	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
 endfunction
+
+"}}}
 
 "}}}
 "{{{ CloseTerm
