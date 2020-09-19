@@ -138,7 +138,6 @@ nnoremap <leader>sr :%s//g<Left><left>
 
 nnoremap <leader>r :call RunProj()<CR>
 nnoremap <leader>d :call DbgProj()<CR>
-nnoremap <leader>e :call RunProj()<CR>
 nnoremap <leader>q :call CloseTerm()<CR>
 
 "}}}
