@@ -23,6 +23,7 @@ function! ToggleArgs()
         let g:args = 0
     else
         let g:args = 1
+		let g:prev_args = ""
     endif
 endfunction
 
@@ -74,7 +75,12 @@ function! DbgPython()
         call inputsave()
         let l:args = input('')
         call inputrestore()
-        :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' l:args
+		if l:args == ""
+        	:execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' g:prev_args
+		else
+			let g:prev_args = l:args
+        	:execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' l:args
+		endif
     else
         :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t'
     endif
@@ -114,7 +120,12 @@ function! RunPython()
         call inputsave()
         let l:args = input('')
         call inputrestore()
-        :execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' l:args
+		if l:args == ""
+        	:execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' g:prev_args
+		else
+			let g:prev_args = l:args
+        	:execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' l:args
+		endif
     else
         :execute ':terminal ++rows=10 ++shell cd %:h && python %:t'
     endif
@@ -249,6 +260,7 @@ set tags=tags
 
 " select if user inputs commandline arguments
 let g:args = 0
+let g:prev_args = ""
 
 " make YCM compatible with UltiSnips (using supertab)
 let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
