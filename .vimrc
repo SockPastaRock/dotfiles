@@ -4,7 +4,7 @@
 runtime! debian.vim
 
 if has("syntax")
-  syntax on
+  " syntax on
 endif
 
 " Source a global configuration file if available
@@ -15,17 +15,54 @@ endif
 "}}}
 "{{{ functions
 
+"{{{ ToggleArgs
+
+
+function! ToggleArgs()
+    if g:args
+        let g:args = 0
+    else
+        let g:args = 1
+    endif
+endfunction
+
+"}}}
+"{{{ Profile
+
+"{{{ ProfileProj
+
+
+function! ProfileProj()
+    write
+    if (&ft=='python')
+        :call CloseTerm()
+        :call ProfilePython()
+    endif
+endfunction
+
+"}}}
+"{{{ ProfilePython
+
+
+function! ProfilePython()
+    :terminal bash -c "cd %:h && python -m cProfile -s tottime %:t > %:r.profile"
+    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+
+"}}}
 "{{{ Debug
 
 "{{{ DbgProj
 
 
 function! DbgProj()
-	write
-	if (&ft=='python')
-	    :call CloseTerm()
-		:call DbgPython()
-	endif
+    write
+    if (&ft=='python')
+        :call CloseTerm()
+        :call DbgPython()
+    endif
 endfunction
 
 "}}}
@@ -33,8 +70,15 @@ endfunction
 
 
 function! DbgPython()
-    :terminal bash -c "cd %:h && python -m pdb %:t"
-	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+    if g:args
+        call inputsave()
+        let l:args = input('')
+        call inputrestore()
+        :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' l:args
+    else
+        :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t'
+    endif
+    ":call feedkeys("\<C-w>p")
 endfunction
 
 "}}}
@@ -46,19 +90,19 @@ endfunction
 
 
 function! RunProj()
-	write
-	if (&ft=='dart')
-		:call RunDart()
-	elseif (&ft=='python')
-	    :call CloseTerm()
-		:call RunPython()
-	elseif (&ft=='asm')
-	    :call CloseTerm()
-		:call RunAssembly()
-	elseif (&ft=='tex')
-	    :call CloseTerm()
-		:call RunLatex()
-	endif
+    write
+    if (&ft=='dart')
+        :call RunDart()
+    elseif (&ft=='python')
+        :call CloseTerm()
+        :call RunPython()
+    elseif (&ft=='asm')
+        :call CloseTerm()
+        :call RunAssembly()
+    elseif (&ft=='tex')
+        :call CloseTerm()
+        :call RunLatex()
+    endif
 endfunction
 
 "}}}
@@ -66,8 +110,15 @@ endfunction
 
 
 function! RunPython()
-    :terminal bash -c "cd %:h && python %:t"
-	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+    if g:args
+        call inputsave()
+        let l:args = input('')
+        call inputrestore()
+        :execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' l:args
+    else
+        :execute ':terminal ++rows=10 ++shell cd %:h && python %:t'
+    endif
+    :call feedkeys("\<C-w>p")
 endfunction
 
 "}}}
@@ -75,9 +126,9 @@ endfunction
 
 
 function! RunLatex()
-	write
+    write
     :terminal bash -c "cd %:h && pdflatex %:t && pdflatex %:t && zathura %:r.pdf"
-	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
 endfunction
 
 "}}}
@@ -85,12 +136,12 @@ endfunction
 
 
 function! RunDart()
-	if bufwinnr('__Flutter_Output__') > 0
-		:FlutterHotReload
-	else
-		:FlutterRun
-	    :call feedkeys("\<C-\>\<C-n>10\<C-w>_\<C-w>p")
-	endif
+    if bufwinnr('__Flutter_Output__') > 0
+        :FlutterHotReload
+    else
+        :FlutterRun
+        :call feedkeys("\<C-\>\<C-n>10\<C-w>_\<C-w>p")
+    endif
 endfunction
 
 "}}}
@@ -98,9 +149,9 @@ endfunction
 
 
 function! RunAssembly()
-	write
-	:terminal bash -c "nasm -f elf %:p -o %:r.o && ld -m elf_i386 -s -o %:r %:r.o && ./%:r"
-	:call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+    write
+    :terminal bash -c "nasm -f elf %:p -o %:r.o && ld -m elf_i386 -s -o %:r %:r.o && ./%:r"
+    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
 endfunction
 
 "}}}
@@ -110,15 +161,15 @@ endfunction
 
 
 function! CloseTerm()
-	try
-        :bd! !bash*
-	catch
-	endtry
-	try
-		:FlutterQuit
+    try
+        :bd! !*
+    catch
+    endtry
+    try
+        :FlutterQuit
         :bd! __Flutter_Output__
-	catch
-	endtry
+    catch
+    endtry
 endfunction
 
 "}}}
@@ -128,7 +179,6 @@ endfunction
 
 "{{{ normal mode
 
-" Leader is \
 nnoremap <leader>% :source ~/.vimrc<CR>
 nnoremap <leader>. :badd $MYVIMRC<CR>:b ~/.vimrc<CR>
 nnoremap <leader>/ :set foldmethod=marker<CR>
@@ -138,6 +188,8 @@ nnoremap <leader>sr :%s//g<Left><left>
 
 nnoremap <leader>r :call RunProj()<CR>
 nnoremap <leader>d :call DbgProj()<CR>
+nnoremap <leader>a :call ToggleArgs()<CR>
+nnoremap <leader>p :call ProfileProj()<CR>
 nnoremap <leader>q :call CloseTerm()<CR>
 
 "}}}
@@ -150,10 +202,16 @@ inoremap <tab> <space><space><space><space>
 
 " Search replace
 vnoremap <leader>sr :<backspace><backspace><backspace><backspace><backspace>%s/\%V/g<Left><left>
+
+" Replace yank w/ input
+vnoremap <leader>ry :<backspace><backspace><backspace><backspace><backspace>%s/\%V<C-r>"//g<Left><Left>
+
 " Replace input w/ yank
-vnoremap <leader>ry :<backspace><backspace><backspace><backspace><backspace>%s/\%V/<C-r>"/g<C-b><Right><Right><Right><Right><Right>
-" Replace yank with input
-vnoremap <leader>yr :<backspace><backspace><backspace><backspace><backspace>%s/\%V<C-r>"//g<Left><Left>
+vnoremap <leader>yr :<backspace><backspace><backspace><backspace><backspace>%s/\%V/<C-r>"/g<C-b><Right><Right><Right><Right><Right>
+
+" Maintain selection on indent
+vnoremap > >gv
+vnoremap < <gv
 
 "}}}
 
@@ -163,16 +221,34 @@ vnoremap <leader>yr :<backspace><backspace><backspace><backspace><backspace>%s/\
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
-
-autocmd BufWritePre * %s/\s\+$//e  "Remove trailing whitespace on save
 set tabstop=4
 set number relativenumber
 set foldmethod=marker
 set backspace=indent,eol,start
 set splitbelow
-colorscheme yin
 set noequalalways
 
+colorscheme yin
+
+" statusline
+set laststatus=2
+set statusline=%F%m
+
+" Remove trailing whitespace on save
+autocmd BufWritePre * %s/\s\+$//e
+
+" Highlight trailing whitespace
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+
+" ctags
+set tags=tags
+
+"}}}
+"{{{ globals
+
+" select if user inputs commandline arguments
+let g:args = 0
 
 " make YCM compatible with UltiSnips (using supertab)
 let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
@@ -191,11 +267,6 @@ let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 let g:UltiSnipsEditSplit="vertical"
 let g:UltiSnipsSnippetsDir = "~/.vim/UltiSnips"
 
-" ctags
-set tags=tags
-
-" set termguicolors
-
 "}}}
 "{{{ plugins
 
@@ -208,14 +279,14 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'prettier/vim-prettier' 				" .
-Plug 'dart-lang/dart-vim-plugin' 			" .
-Plug 'thosakwe/vim-flutter' 				" .
-Plug 'kien/ctrlp.vim' 						" Fuzzyfinder
-Plug 'valloric/youcompleteme' 				" Autocomplete
-Plug 'sirver/ultisnips' 					" Snippets
-Plug 'ervandew/supertab' 					" Autocomplete and Snippets play nice together
-Plug 'bronson/vim-trailing-whitespace' 		" Trim whitespace on save
+Plug 'kien/ctrlp.vim'                       " Fuzzyfinder
+Plug 'valloric/youcompleteme'               " Autocomplete
+Plug 'sirver/ultisnips'                     " Snippets
+Plug 'ervandew/supertab'                    " Autocomplete and Snippets play nice together
+" Plug 'dart-lang/dart-vim-plugin'          " app development
+" Plug 'thosakwe/vim-flutter'               " app development
+" Plug 'bronson/vim-trailing-whitespace'    " Trim whitespace on save
+" Plug 'prettier/vim-prettier'              " autostyling
 
 call plug#end()
 
