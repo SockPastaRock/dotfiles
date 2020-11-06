@@ -46,8 +46,20 @@ endfunction
 
 
 function! ProfilePython()
-    :terminal bash -c "cd %:h && python -m cProfile -s tottime %:t > %:r.profile"
-    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+    if g:args
+        call inputsave()
+        let l:args = input('')
+        call inputrestore()
+		if l:args == ""
+				:execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' g:prev_args ' > %:t.profile && cat %:t.profile'
+		else
+			let g:prev_args = l:args
+			:execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' l:args ' > %:t.profile && cat %:t.profile'
+		endif
+    else
+			:execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t > %:t.profile && cat %:t.profile'
+    endif
+    :call feedkeys("\<C-w>p")
 endfunction
 
 "}}}
@@ -184,6 +196,24 @@ function! CloseTerm()
 endfunction
 
 "}}}
+"{{{ OpenTerm
+
+
+function! OpenTerm()
+    :call CloseTerm()
+    :execute ':terminal ++rows=10'
+endfunction
+
+"}}}
+"{{{ OpenTerm
+
+
+function! GitTree()
+    :call CloseTerm()
+    :execute ':terminal ++rows=20 ++shell git log --graph --full-history --all --color'
+endfunction
+
+"}}}
 
 "}}}
 "{{{ remaps
@@ -199,6 +229,8 @@ nnoremap <leader>sr :%s//g<Left><left>
 
 nnoremap <leader>r :call RunProj()<CR>
 nnoremap <leader>d :call DbgProj()<CR>
+nnoremap <leader>t :call OpenTerm()<CR>
+nnoremap <leader>g :call GitTree()<CR>
 nnoremap <leader>a :call ToggleArgs()<CR>
 nnoremap <leader>p :call ProfileProj()<CR>
 nnoremap <leader>q :call CloseTerm()<CR>
