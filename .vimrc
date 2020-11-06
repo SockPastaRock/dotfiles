@@ -205,7 +205,7 @@ function! OpenTerm()
 endfunction
 
 "}}}
-"{{{ OpenTerm
+"{{{ GitTree
 
 
 function! GitTree()
