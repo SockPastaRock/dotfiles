@@ -51,13 +51,13 @@ function! ProfilePython()
         let l:args = input('')
         call inputrestore()
         if l:args == ""
-                :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' g:prev_args ' > %:t.profile && cat %:t.profile'
+            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' g:prev_args ' > %:t.profile && cat %:t.profile'
         else
             let g:prev_args = l:args
             :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' l:args ' > %:t.profile && cat %:t.profile'
         endif
     else
-            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t > %:t.profile && cat %:t.profile'
+        :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t > %:t.profile && cat %:t.profile'
     endif
     :call feedkeys("\<C-w>p")
 endfunction
