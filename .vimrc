@@ -23,7 +23,7 @@ function! ToggleArgs()
         let g:args = 0
     else
         let g:args = 1
-		let g:prev_args = ""
+        let g:prev_args = ""
     endif
 endfunction
 
@@ -50,14 +50,14 @@ function! ProfilePython()
         call inputsave()
         let l:args = input('')
         call inputrestore()
-		if l:args == ""
-				:execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' g:prev_args ' > %:t.profile && cat %:t.profile'
-		else
-			let g:prev_args = l:args
-			:execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' l:args ' > %:t.profile && cat %:t.profile'
-		endif
+        if l:args == ""
+                :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' g:prev_args ' > %:t.profile && cat %:t.profile'
+        else
+            let g:prev_args = l:args
+            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' l:args ' > %:t.profile && cat %:t.profile'
+        endif
     else
-			:execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t > %:t.profile && cat %:t.profile'
+            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t > %:t.profile && cat %:t.profile'
     endif
     :call feedkeys("\<C-w>p")
 endfunction
@@ -87,12 +87,12 @@ function! DbgPython()
         call inputsave()
         let l:args = input('')
         call inputrestore()
-		if l:args == ""
-        	:execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' g:prev_args
-		else
-			let g:prev_args = l:args
-        	:execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' l:args
-		endif
+        if l:args == ""
+            :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' g:prev_args
+        else
+            let g:prev_args = l:args
+            :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' l:args
+        endif
     else
         :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t'
     endif
@@ -132,12 +132,12 @@ function! RunPython()
         call inputsave()
         let l:args = input('')
         call inputrestore()
-		if l:args == ""
-        	:execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' g:prev_args
-		else
-			let g:prev_args = l:args
-        	:execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' l:args
-		endif
+        if l:args == ""
+            :execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' g:prev_args
+        else
+            let g:prev_args = l:args
+            :execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' l:args
+        endif
     else
         :execute ':terminal ++rows=10 ++shell cd %:h && python %:t'
     endif
