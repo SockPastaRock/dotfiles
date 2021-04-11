@@ -214,6 +214,88 @@ function! GitTree()
 endfunction
 
 "}}}
+"{{{ CloseTerm
+
+
+function! CloseTerm()
+	try
+		:bd! !*
+	catch
+	endtry
+	try
+		:execute ':terminal ++close ++hidden ++shell cd %:h && tmux kill-session -t debug'
+	catch
+	endtry
+	try
+		:call DeleteDbgFile()
+	catch
+	endtry
+
+endfunction
+
+"}}}
+"{{{ Cleanup
+
+
+function! Cleanup()
+	if (&ft=='virtual')
+		:call CloseVirtual()
+	else
+		:call CloseTerm()
+	endif
+endfunction
+
+"}}}
+"{{{ DeleteDbgFile
+
+
+function! DeleteDbgFile()
+	try
+		:execute ':terminal ++close ++hidden ++shell rm %:h/dbg_%:t'
+	catch
+	endtry
+endfunction
+
+"i}}}
+"{{{ VirtualEdit
+
+
+function! VirtualEdit()
+
+	let g:cur_line = line(".")
+	let g:win_height = winheight(1)
+	let g:rel_line = winline()
+	let split_height = 3
+
+	split
+	execute "res" .(g:win_height - g:rel_line - 2)
+	:execute ':abo :3 sp .vir'
+
+	call feedkeys("\<C-w>\<C-w>")
+	call feedkeys(g:cur_line ."Gjzt")
+
+	call feedkeys("\<C-w>\<C-w>")
+	call feedkeys("gg" .g:cur_line ."G")
+
+	call feedkeys("\<C-w>\<C-w>")
+
+endfunction
+
+"}}}
+"{{{ CloseVirtual
+
+
+function! CloseVirtual()
+
+	q
+	q
+	call feedkeys("gg" .g:cur_line ."G")
+	call feedkeys((g:rel_line) ."k")
+	call feedkeys((g:rel_line) ."j")
+
+endfunction
+
+"}}}
 
 "}}}
 "{{{ remaps
@@ -227,13 +309,14 @@ nnoremap <leader>] :buffers<CR>:buffer<Space>
 nnoremap <leader><leader> :CtrlP<CR>
 nnoremap <leader>sr :%s//g<Left><left>
 
+nnoremap <leader>v :call VirtualEdit()<CR>
 nnoremap <leader>r :call RunProj()<CR>
 nnoremap <leader>d :call DbgProj()<CR>
 nnoremap <leader>t :call OpenTerm()<CR>
 nnoremap <leader>g :call GitTree()<CR>
 nnoremap <leader>a :call ToggleArgs()<CR>
 nnoremap <leader>p :call ProfileProj()<CR>
-nnoremap <leader>q :call CloseTerm()<CR>
+nnoremap <leader>q :call Cleanup()<CR>
 
 "}}}
 "{{{ insert mode
@@ -311,6 +394,11 @@ let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 let g:UltiSnipsEditSplit="vertical"
 let g:UltiSnipsSnippetsDir = "~/.vim/UltiSnips"
 
+" vfile
+let g:cur_line = line(".")
+let g:win_height = winheight(1)
+let g:rel_line = winline()
+
 "}}}
 "{{{ plugins
 
@@ -323,10 +411,10 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'kien/ctrlp.vim'                       " Fuzzyfinder
-Plug 'valloric/youcompleteme'               " Autocomplete
-Plug 'sirver/ultisnips'                     " Snippets
-Plug 'ervandew/supertab'                    " Autocomplete and Snippets play nice together
+" Plug 'kien/ctrlp.vim'                     " Fuzzyfinder
+" Plug 'valloric/youcompleteme'             " Autocomplete
+" Plug 'sirver/ultisnips'                   " Snippets
+" Plug 'ervandew/supertab'                  " Autocomplete and Snippets play nice together
 " Plug 'dart-lang/dart-vim-plugin'          " app development
 " Plug 'thosakwe/vim-flutter'               " app development
 " Plug 'bronson/vim-trailing-whitespace'    " Trim whitespace on save
