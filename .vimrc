@@ -51,13 +51,13 @@ function! ProfilePython()
         let l:args = input('')
         call inputrestore()
         if l:args == ""
-            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' g:prev_args ' > %:t.profile && cat %:t.profile'
+            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python3 -m cProfile -s tottime %:t ' g:prev_args ' > %:t.profile && cat %:t.profile'
         else
             let g:prev_args = l:args
-            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t ' l:args ' > %:t.profile && cat %:t.profile'
+            :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python3 -m cProfile -s tottime %:t ' l:args ' > %:t.profile && cat %:t.profile'
         endif
     else
-        :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python -m cProfile -s tottime %:t > %:t.profile && cat %:t.profile'
+        :execute ':terminal ++rows=10 ++shell echo "Profiling program. This may take some time.." && cd %:h && python3 -m cProfile -s tottime %:t > %:t.profile && cat %:t.profile'
     endif
     :call feedkeys("\<C-w>p")
 endfunction
@@ -75,6 +75,9 @@ function! DbgProj()
     if (&ft=='python')
         :call CloseTerm()
         :call DbgPython()
+    elseif (&ft=='cpp')
+        :call CloseTerm()
+        :call DbgCpp()
     endif
 endfunction
 
@@ -88,13 +91,34 @@ function! DbgPython()
         let l:args = input('')
         call inputrestore()
         if l:args == ""
-            :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' g:prev_args
+            :execute ':terminal ++rows=10 ++shell cd %:h && python3 -m pdb %:t ' g:prev_args
         else
             let g:prev_args = l:args
-            :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t ' l:args
+            :execute ':terminal ++rows=10 ++shell cd %:h && python3 -m pdb %:t ' l:args
         endif
     else
-        :execute ':terminal ++rows=10 ++shell cd %:h && python -m pdb %:t'
+        :execute ':terminal ++rows=10 ++shell cd %:h && python3 -m pdb %:t'
+    endif
+    ":call feedkeys("\<C-w>p")
+endfunction
+
+"}}}
+"{{{ DbgCpp
+
+
+function! DbgCpp()
+    if g:args
+        call inputsave()
+        let l:args = input('')
+        call inputrestore()
+        if l:args == ""
+            :execute ':terminal ++rows=10 ++shell cd %:h && python3 -m pdb %:t ' g:prev_args
+        else
+            let g:prev_args = l:args
+            :execute ':terminal ++rows=10 ++shell cd %:h && python3 -m pdb %:t ' l:args
+        endif
+    else
+	    :execute ':terminal ++rows=10 ++shell gcc -g -o ./%:r.dbg %:p && gdb ./%:r.dbg && rm ./%:r.dbg'
     endif
     ":call feedkeys("\<C-w>p")
 endfunction
@@ -120,6 +144,15 @@ function! RunProj()
     elseif (&ft=='tex')
         :call CloseTerm()
         :call RunLatex()
+    elseif (&ft=='c')
+        :call CloseTerm()
+        :call RunC()
+    elseif (&ft=='cpp')
+        :call CloseTerm()
+        :call RunCpp()
+    elseif (&ft=='cs')
+        :call CloseTerm()
+        :call RunDotnet()
     endif
 endfunction
 
@@ -133,13 +166,34 @@ function! RunPython()
         let l:args = input('')
         call inputrestore()
         if l:args == ""
-            :execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' g:prev_args
+            :execute ':terminal ++rows=10 ++shell cd %:h && python3 %:t ' g:prev_args
         else
             let g:prev_args = l:args
-            :execute ':terminal ++rows=10 ++shell cd %:h && python %:t ' l:args
+            :execute ':terminal ++rows=10 ++shell cd %:h && python3 %:t ' l:args
         endif
     else
-        :execute ':terminal ++rows=10 ++shell cd %:h && python %:t'
+        :execute ':terminal ++rows=10 ++shell cd %:h && python3 %:t'
+    endif
+    :call feedkeys("\<C-w>p")
+endfunction
+
+"}}}
+"{{{ RunDotnet
+
+
+function! RunDotnet()
+    if g:args
+        call inputsave()
+        let l:args = input('')
+        call inputrestore()
+        if l:args == ""
+            :execute ':terminal ++rows=10 ++shell cd %:h && dotnet run ' g:prev_args
+        else
+            let g:prev_args = l:args
+            :execute ':terminal ++rows=10 ++shell cd %:h && dotnet run ' l:args
+        endif
+    else
+        :execute ':terminal ++rows=10 ++shell dotnet run && rm -r bin && rm -r obj'
     endif
     :call feedkeys("\<C-w>p")
 endfunction
@@ -174,6 +228,65 @@ endfunction
 function! RunAssembly()
     write
     :terminal bash -c "nasm -f elf %:p -o %:r.o && ld -m elf_i386 -s -o %:r %:r.o && ./%:r"
+    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+"{{{ RunC
+
+
+function! RunC()
+    write
+    :terminal bash -c ""
+    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+"{{{ RunCpp
+
+
+function! RunCpp()
+    write
+    :terminal bash -c "gcc %:p -o %:r.tmp && ./%:r.tmp && rm ./%:r.tmp"
+    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+
+"}}}
+"{{{ Disassemble
+
+"{{{ DisassembleProj
+
+
+function! DisassembleProj()
+    write
+    if (&ft=='c')
+        :call CloseTerm()
+        :call DisassembleC()
+    elseif (&ft=='cpp')
+        :call CloseTerm()
+        :call DisassembleCpp()
+    endif
+endfunction
+
+"}}}
+"{{{ DisassembleC
+
+
+function! DisassembleC()
+    write
+    :terminal bash -c ""
+    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+"{{{ DisassembleCpp
+
+
+function! DisassembleCpp()
+    write
+	:terminal bash -c "gcc -S -o ./%:r.tmp %:p && cat ./%:r.tmp && rm ./%:r.tmp"
     :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
 endfunction
 
@@ -311,6 +424,7 @@ nnoremap <leader>sr :%s//g<Left><left>
 
 nnoremap <leader>v :call VirtualEdit()<CR>
 nnoremap <leader>r :call RunProj()<CR>
+nnoremap <leader>x :call DisassembleProj()<CR>
 nnoremap <leader>d :call DbgProj()<CR>
 nnoremap <leader>t :call OpenTerm()<CR>
 nnoremap <leader>g :call GitTree()<CR>
@@ -411,7 +525,7 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
-" Plug 'kien/ctrlp.vim'                     " Fuzzyfinder
+Plug 'kien/ctrlp.vim'                     " Fuzzyfinder
 " Plug 'valloric/youcompleteme'             " Autocomplete
 " Plug 'sirver/ultisnips'                   " Snippets
 " Plug 'ervandew/supertab'                  " Autocomplete and Snippets play nice together
