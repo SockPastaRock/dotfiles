@@ -153,6 +153,9 @@ function! RunProj()
     elseif (&ft=='cs')
         :call CloseTerm()
         :call RunDotnet()
+    elseif (&ft=='')
+        :call CloseTerm()
+        :call RunMod()
     endif
 endfunction
 
@@ -236,9 +239,20 @@ endfunction
 
 
 function! RunC()
-    write
-    :terminal bash -c ""
-    :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+    if g:args
+        call inputsave()
+        let l:args = input('')
+        call inputrestore()
+        if l:args == ""
+        	:execute ':terminal ++rows=10 ++shell cd %:h && gcc %:t -o %:r.tmp -fno-stack-protector -z execstack -no-pie -m32 && ./%:r.tmp ' g:prev_args ' && rm ./%:r.tmp'
+        else
+            let g:prev_args = l:args
+        	:execute ':terminal ++rows=10 ++shell cd %:h && gcc %:t -o %:r.tmp -fno-stack-protector -z execstack -no-pie -m32 && ./%:r.tmp ' l:args ' && rm ./%:r.tmp'
+        endif
+    else
+        :execute ':terminal ++rows=10 ++shell cd %:h && gcc %:t -o %:r.tmp -fno-stack-protector -z execstack -no-pie -m32 && ./%:r.tmp && rm ./%:r.tmp'
+    endif
+    :call feedkeys("\<C-w>p")
 endfunction
 
 "}}}
@@ -249,6 +263,13 @@ function! RunCpp()
     write
     :terminal bash -c "gcc %:p -o %:r.tmp && ./%:r.tmp && rm ./%:r.tmp"
     :call feedkeys("\<C-\>\<C-n>10\<C-w>_i\<C-w>p")
+endfunction
+
+"}}}
+"{{{ RunMod
+
+function! RunMod()
+    write
 endfunction
 
 "}}}
@@ -527,7 +548,7 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'kien/ctrlp.vim'                     " Fuzzyfinder
 " Plug 'valloric/youcompleteme'             " Autocomplete
-" Plug 'sirver/ultisnips'                   " Snippets
+Plug 'sirver/ultisnips'                   " Snippets
 " Plug 'ervandew/supertab'                  " Autocomplete and Snippets play nice together
 " Plug 'dart-lang/dart-vim-plugin'          " app development
 " Plug 'thosakwe/vim-flutter'               " app development
