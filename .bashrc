@@ -1,5 +1,5 @@
 
-#{{{ Defaults
+#{{{ Default
 
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
@@ -60,8 +60,6 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
@@ -120,11 +118,22 @@ if ! shopt -oq posix; then
 fi
 
 #}}}
-#{{{ Customs
 
-alias python=python3
-export PATH="/home/chris/anaconda3/bin:$PATH"
-export PROMPT_COMMAND='PS1="$(python ~/.short.pwd.py)"'
+alias python3="/usr/bin/python3"
+
+DEFAULT_USER=$USER
+
+LS_COLORS=$LS_COLORS:'di=1;002:ex=0;036:' ; export LS_COLORS
+
 export VISUAL=vim
+export EDITOR=vim
 
-#}}}
+# export PROMPT_COMMAND='PS1="$(python3 ~/.bash/.short.pwd.py)"'
+
+# export HTTP_PROXY="0.0.0.0:8080"
+# export HTTPS_PROXY="0.0.0.0:8080"
+# export NO_PROXY="localhost,127.0.0.1,::1"
+
+# export http_proxy="0.0.0.0:8080"
+# export https_proxy="0.0.0.0:8080"
+# export no_proxy="localhost,127.0.0.1,::1"
